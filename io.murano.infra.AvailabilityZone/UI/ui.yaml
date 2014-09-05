@@ -1,0 +1,23 @@
+Version: 2
+
+Application:
+  ?:
+    type: io.murano.infra.AvailabilityZone
+  name: $.appConfiguration.name
+  zone: $.appConfiguration.availabilityZone
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: name
+          type: string
+          label: Application Name
+          initial: AZ_Green
+          description: >-
+            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
+            underline are allowed
+        - name: availabilityZone
+          type: azone
+          label: Availability zone
+          description: Select availability zone where the application would be installed.
+          required: false

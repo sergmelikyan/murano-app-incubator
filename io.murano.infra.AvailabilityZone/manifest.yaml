@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.infra.AvailabilityZone
+Name: Availability Zone configuration
+Description: |
+ Infrastructure configuration component for availability zone.
+Author: 'Mirantis, Inc'
+Tags: [az,ha,availability]
+Classes:
+ io.murano.infra.AvailabilityZone: AvailabilityZone.yaml
