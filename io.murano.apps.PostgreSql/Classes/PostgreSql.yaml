@@ -16,6 +16,9 @@ Properties:
   instance:
     Contract: $.class(res:Instance).notNull()
 
+  zone:
+    Contract: $.class('io.murano.infra.AvailabilityZone')
+
 Workflow:
   initialize:
     Body:

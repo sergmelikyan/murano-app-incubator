@@ -4,6 +4,7 @@ Application:
   ?:
     type: io.murano.apps.PostgreSql
   name: $.appConfiguration.name
+  zone: $.appConfiguration.az
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
@@ -32,6 +33,13 @@ Forms:
           required: false
           widgetMedia:
             css: {all: ['muranodashboard/css/checkbox.css']}
+        - name: az
+          label: Availability Zone placement
+          type: io.murano.infra.AvailabilityZone
+          required: false
+          description: >-
+             Optionally specify the availability zone where this cluster
+             should be placed
         - name: unitNamingPattern
           type: string
           required: false
@@ -67,8 +75,4 @@ Forms:
             Select the Key Pair to control access to instances. You can login to
             instances using this KeyPair after the deployment of application.
           required: false
-        - name: availabilityZone
-          type: azone
-          label: Availability zone
-          description: Select availability zone where the application would be installed.
-          required: false
+

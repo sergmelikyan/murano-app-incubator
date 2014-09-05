@@ -29,12 +29,12 @@ Forms:
             A directory at the web server to which the application will be installed
           initial: hello_world
         - name: database
-          type: io.murano.apps.PostgreSql
+          type: [io.murano.apps.PostgreSql,io.murano.apps.PostgreSqlHA]
           label: Database Server
           description: >-
             Select a database server to host the application's database
         - name: tomcat
-          type: [io.murano.apps.apache.TomcatSingle,io.murano.apps.apache.TomcatCluster]
+          type: [io.murano.apps.apache.TomcatSingle,io.murano.apps.apache.TomcatCluster,io.murano.apps.apache.TomcatHA]
           label: Servlet Container
           description: >-
             Select an instance of Java servlet contaniner to run the app

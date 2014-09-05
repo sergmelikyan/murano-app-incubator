@@ -15,6 +15,7 @@ Application:
   name: $.appConfiguration.name
   instances: repeat($instance, $.appConfiguration.max_count)
   initial_count: $.appConfiguration.instance_count
+  zone: $.appConfiguration.az
 
 Forms:
   - appConfiguration:
@@ -34,6 +35,15 @@ Forms:
           label: Maximum Number of Virtual instances
           type: integer
           initial: 10
+
+        - name: az
+          label: Availability Zone placement
+          type: io.murano.infra.AvailabilityZone
+          required: false
+          description: >-
+            Optionally specify the availability zone where this cluster
+            should be placed
+
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP
@@ -70,11 +80,6 @@ Forms:
           description: >-
             Select a Key Pair to control access to instances. You can login to
             instances using this KeyPair after the deployment of application.
-          required: false
-        - name: availabilityZone
-          type: azone
-          label: Availability zone
-          description: Select availability zone where the application would be installed.
           required: false
         - name: unitNamingPattern
           label: Hostname

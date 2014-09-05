@@ -14,6 +14,7 @@ Application:
   name: $.appConfiguration.name
 
   instances: repeat($instance, $.appConfiguration.instance_count)
+  initial_count: $.appConfiguration.initial_count
 
 Forms:
   - appConfiguration:
@@ -25,10 +26,14 @@ Forms:
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed
-        - name: instance_count
-          label: Number of Virtual instances
+        - name: initial_count
+          label: Initial Number of Virtual instances
           type: integer
           initial: 1
+        - name: instance_count
+          label: Max Number of Virtual instances
+          type: integer
+          initial: 5
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP

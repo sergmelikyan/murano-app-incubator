@@ -19,6 +19,9 @@ Properties:
     Contract: $.int().notNull()
     Default: 8080
 
+  zone:
+    Contract: $.class('io.murano.infra.AvailabilityZone')
+
 
 Workflow:
   initialize:
@@ -51,7 +54,7 @@ Workflow:
           # Deploy Apache Tomcat on all instances
           - $template: $resources.yaml('DeployTomcat.template')
           - $.environment.reporter.report($this, '[TomcatCluster]Deploying Tomcat')
-          - $.instances.plimselect($.agent.call($template, $resources), $.current_count)
+          - $.instances.take($.current_count).pselect($.agent.call($template, $resources))
           - $.environment.reporter.report($this, '[TomcatCluster]Tomcat is installed')
           # Set the public_ip as a floating IP of underlying LB
           - $.public_ip: $.balancer_ip
@@ -64,7 +67,7 @@ Workflow:
         Contract: $.class(std:Application).notNull()
     Body:
       - $.environment.reporter.report($this, '[TomcatCluster]Deploying application to Tomcat')
-      - $.instances.plimselect($app.deployApp($), $this.current_count)
+      - $.instances.take($this.current_count).pselect($app.deployApp($))
 
 
   execute:
@@ -83,7 +86,7 @@ Workflow:
   enableLb:
     Body:
         - $this.find(std:Environment).reporter.report($this, '[TomcatCluster] Go online.')
-        - $.instances.plimselect($this.addToLB($.name, $this.port), $this.current_count)
+        - $.instances.take($this.current_count).pselect($this.addToLB($.name, $this.port))
 
 
   addInstance:
