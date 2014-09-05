@@ -62,6 +62,7 @@ Workflow:
         Contract: $.class(res:Instance).notNull()
 
     Body:
+        - $.environment.reporter.report($this, '[HelloWorld] Installing App to Tomcat')
         - $resources: new(sys:Resources)
         # Deploy app over Tomcat
         - $template: $resources.yaml('DeployTomcatApp.template').bind(dict(
@@ -78,3 +79,9 @@ Workflow:
              dir => $.dir
             ))
         - $instance.agent.call($template, $resources)
+
+  scaleUP:
+    Usage: Action
+    Body:
+     - $.tomcat.addInstance($this)
+

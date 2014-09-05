@@ -13,7 +13,8 @@ Application:
   ?:
     type: io.murano.apps.apache.TomcatCluster
   name: $.appConfiguration.name
-  instances: repeat($instance, $.appConfiguration.instance_count)
+  instances: repeat($instance, $.appConfiguration.max_count)
+  initial_count: $.appConfiguration.instance_count
 
 Forms:
   - appConfiguration:
@@ -26,9 +27,13 @@ Forms:
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed
         - name: instance_count
-          label: Number of Virtual instances
+          label: Initial Number of Virtual instances
           type: integer
           initial: 1
+        - name: max_count
+          label: Maximum Number of Virtual instances
+          type: integer
+          initial: 10
         - name: assignFloatingIP
           type: boolean
           label: Assign Floating IP

@@ -15,4 +15,4 @@ Scripts:
     EntryPoint: getHostname.sh
     Options:
       captureStdout: true
-      captureStderr: true
+      captureStderr: false
