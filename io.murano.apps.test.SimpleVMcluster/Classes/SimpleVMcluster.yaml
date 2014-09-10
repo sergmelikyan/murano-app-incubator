@@ -46,9 +46,13 @@ Workflow:
 
   deploy:
     Body:
+#      - debugPrint('--> deploy()')
       - If: not $.getAttr(isDeployed, false)
         Then:
+          - $resources: new(sys:Resources)
+
           - $this.find(std:Environment).reporter.report($this, '[VMCluster]Creating VM ')
+
           - $securityGroupIngress:
               - ToPort: 22
                 FromPort: 22
@@ -57,21 +61,25 @@ Workflow:
           - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           - $.current_count: $.initial_count
           - $.instances.take($.initial_count).pselect($.deploy())
-          - $resources: new(sys:Resources)
+
+          - For: inst
+            In: $.instances.take($.initial_count)
+            Do:
+              - $this.registerHeatAlarm(instanceName => $inst.name)
 
           - $this.find(std:Environment).reporter.report($this, '[VMCluster]VMs are created')
 
           - $net: $.environment.defaultNetworks.environment
           - $subnetRef: $net.name + '-subnet-' + $net.id()
           - $extNetId: $net.getExternalNetId()
-          - $resources: new('io.murano.system.Resources')
+
           - $this.find(std:Environment).reporter.report($this, '[VMCluster]Creating LB Pool')
           - $template: $resources.yaml('lb-template.hot').bind(dict(
-              pool_name => 'testPool',
-              subnet => $subnetRef,
-              lb_name => 'testLB',
-              public_net_id => $extNetId
-             ))
+                pool_name     => 'testPool',
+                subnet        => $subnetRef,
+                lb_name       => 'testLB',
+                public_net_id => $extNetId
+              ))
           - $.environment.stack.updateTemplate($template)
           - $.environment.stack.push()
           - $outputs: $.environment.stack.output()
@@ -97,3 +105,37 @@ Workflow:
           ))
       - $.environment.stack.updateTemplate($template)
       - $.environment.stack.push()
+
+  registerHeatAlarm:
+    Arguments:
+      instanceName:
+        Contract: $.string().notNull()
+
+    Body:
+#      - debugPrint('--> registerHeatAlarm({0})'.format($instance_name))
+      - $res: new(sys:Resources)
+
+      - $alarmAction: format('{0}/v1/environments/{1}/actions/{1}_scaleUP',
+            config(murano, url),
+            $.environment.id()
+          )
+      - $alarmName: format('cpu_alarm_high_{0}', $instanceName)
+
+#      - debugPrint('alarm_action = {0}'.format($alarmAction))
+#      - debugPrint('alarm resource name = {0}'.format($alarmName))
+
+      - $template: $res.yaml('cpu-alarm-high.hot').bind(dict(
+            instance_name => $instanceName,
+            alarm_name    => $alarmName,
+            alarm_action  => $alarmAction
+          ))
+#      - debugPrint('heat_alarm_template = {0}'.format($template))
+
+      - $.environment.stack.updateTemplate($template)
+      - $.environment.stack.push()
+#      - debugPrint('<-- registerHeatAlarm()')
+
+  scaleUP:
+    Usage: Action
+    Body:
+     - $.addVM()
