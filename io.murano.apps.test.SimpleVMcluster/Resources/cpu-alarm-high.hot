@@ -10,6 +10,5 @@ resources:
       threshold: 50
       alarm_actions:
         - $alarm_action
-      repeat_actions: true
       matching_metadata: {"resource_id": {get_resource: $instance_name}}
       comparison_operator: gt

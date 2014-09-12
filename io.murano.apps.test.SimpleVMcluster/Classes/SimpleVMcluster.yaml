@@ -39,14 +39,17 @@ Workflow:
 
   addVM:
     Body:
+      - debugPrint('--> addVM()')
       - $.current_count: $.current_count + 1
       - $inst: $.instances[$.current_count]
       - $inst.deploy()
+      - $this.registerHeatAlarm(instanceName => $inst.name)
+      - debugPrint('<-- addVM()')
 
 
   deploy:
     Body:
-#      - debugPrint('--> deploy()')
+      - debugPrint('--> deploy()')
       - If: not $.getAttr(isDeployed, false)
         Then:
           - $resources: new(sys:Resources)
@@ -112,12 +115,13 @@ Workflow:
         Contract: $.string().notNull()
 
     Body:
-#      - debugPrint('--> registerHeatAlarm({0})'.format($instance_name))
+      - debugPrint('--> registerHeatAlarm({0})'.format($instance_name))
       - $res: new(sys:Resources)
 
-      - $alarmAction: format('{0}/v1/environments/{1}/actions/{1}_scaleUP',
-            config(murano, url),
-            $.environment.id()
+      - $alarmAction: format('http://{0}:8084/actions/{1}/actions/{2}_scaleUP',
+            '172.18.10.94',
+            $.environment.id(),
+            $this.id()
           )
       - $alarmName: format('cpu_alarm_high_{0}', $instanceName)
 
@@ -133,7 +137,7 @@ Workflow:
 
       - $.environment.stack.updateTemplate($template)
       - $.environment.stack.push()
-#      - debugPrint('<-- registerHeatAlarm()')
+      - debugPrint('<-- registerHeatAlarm()')
 
   scaleUP:
     Usage: Action
