@@ -7,4 +7,4 @@ Description: |
 Author: 'Mirantis, Inc'
 Tags: [Servlets, Server, Pages, Java]
 Classes:
- io.murano.apps.apache.TomcatCluster: TomcatCluster.yaml
+ io.murano.apps.apache.TomcatCluster: TomcatCluster.murano

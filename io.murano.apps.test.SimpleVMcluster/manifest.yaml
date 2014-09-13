@@ -7,4 +7,4 @@ Description: |
 Author: 'Mirantis, Inc'
 Tags: [test]
 Classes:
- io.murano.apps.test.SimpleVMcluster: SimpleVMcluster.yaml
+ io.murano.apps.test.SimpleVMcluster: SimpleVMcluster.murano

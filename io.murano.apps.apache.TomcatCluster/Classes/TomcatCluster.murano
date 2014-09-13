@@ -10,8 +10,8 @@ Name: TomcatCluster
 
 
 Extends:
-  - io.murano.apps.test.SimpleVMcluster
-  - io.murano.apps.apache.TomcatServletContainer
+   - io.murano.apps.test.SimpleVMcluster
+   - io.murano.apps.apache.TomcatServletContainer
 
 
 Properties:
@@ -36,15 +36,15 @@ Workflow:
           - $securityGroupIngress:
               - ToPort: 80
                 FromPort: 80
-                IpProtocol: tcp
+                IpProtocol: 'tcp'
                 External: True
               - ToPort: 8080
                 FromPort: 8080
-                IpProtocol: tcp
+                IpProtocol: 'tcp'
                 External: True
               - ToPort: 443
                 FromPort: 443
-                IpProtocol: tcp
+                IpProtocol: 'tcp'
                 External: True
           - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           # Deploy the underlying cluster of VMs and LB Pool
@@ -110,4 +110,27 @@ Workflow:
       - $.environment.reporter.report($this, '[TomcatCluster]Adding new VM to LB')
       - $.addToLB($inst.name, $.port)
 
+  addInstanceWithAlarm:
+    Arguments:
+        app:
+          Contract: $.class(std:Application).notNull()
+        action_name:
+          Contract: $.string().notNull()
+    Body:
+      - $.environment.reporter.report($this, '[TC:Adding Instance]Creating VM')
+      - $.cast('io.murano.apps.test.SimpleVMcluster').addVM()
+      #Get last VM
+      - $inst: $.instances[$.current_count]
+      #Deploy Tomcat to last VM
+      # Deploy Apache Tomcat on all instances
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('DeployTomcat.template')
+      - $.environment.reporter.report($this, '[TC:Adding Instance]Deploying Tomcat')
+      - $inst.agent.call($template, $resources)
+      - $.environment.reporter.report($this, '[TomcatCluster]Tomcat is installed')
+      #Deploy app to last VM
+      - $app.deployApp($inst)
+      - $.registerHeatAlarm($inst.name, $app, action_name)
+      - $.environment.reporter.report($this, '[TomcatCluster]Adding new VM to LB')
+      - $.addToLB($inst.name, $.port)
 

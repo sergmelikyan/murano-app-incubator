@@ -47,6 +47,7 @@ Workflow:
           - $.database.createDatabase($.dbName, $.dbUser, $.dbPassword)
           - $.tomcat.deployApp($this)
           - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Application is installed')
+          - $.tomcat.registerAlarmsForCluster($this, 'scaleUP')
           - $.tomcat.enableLb()
           - If: $.tomcat.clustered
             Then:
@@ -83,5 +84,5 @@ Workflow:
   scaleUP:
     Usage: Action
     Body:
-     - $.tomcat.addInstance($this)
+     - $.tomcat.addInstanceWithAlarm($this, 'scaleUP')
 

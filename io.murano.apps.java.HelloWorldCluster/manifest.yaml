@@ -7,4 +7,4 @@ Description: |
 Author: 'Mirantis, Inc'
 Tags: [Servlets, Server, Pages, Java]
 Classes:
- io.murano.apps.java.HelloWorldCluster: HelloWorldCluster.yaml
+ io.murano.apps.java.HelloWorldCluster: HelloWorldCluster.murano
