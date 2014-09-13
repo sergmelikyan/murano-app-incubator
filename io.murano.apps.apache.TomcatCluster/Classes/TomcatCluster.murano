@@ -19,8 +19,6 @@ Properties:
     Contract: $.int().notNull()
     Default: 8080
 
-  zone:
-    Contract: $.class('io.murano.infra.AvailabilityZone')
 
 
 Workflow:

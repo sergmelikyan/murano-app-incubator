@@ -15,7 +15,7 @@ Application:
   name: $.appConfiguration.name
   instances: repeat($instance, $.appConfiguration.max_count)
   initial_count: $.appConfiguration.instance_count
-  zone: $.appConfiguration.az
+
 
 Forms:
   - appConfiguration:
@@ -36,13 +36,6 @@ Forms:
           type: integer
           initial: 10
 
-        - name: az
-          label: Availability Zone placement
-          type: io.murano.infra.AvailabilityZone
-          required: false
-          description: >-
-            Optionally specify the availability zone where this cluster
-            should be placed
 
         - name: assignFloatingIP
           type: boolean
