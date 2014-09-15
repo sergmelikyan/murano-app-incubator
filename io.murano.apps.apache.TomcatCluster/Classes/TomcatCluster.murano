@@ -84,7 +84,8 @@ Workflow:
   enableLb:
     Body:
         - $this.find(std:Environment).reporter.report($this, '[TomcatCluster] Go online.')
-        - $.instances.take($this.current_count).pselect($this.addToLB($.name, $this.port))
+        - $.instances.take($this.current_count).pselect($this.addToLB(instance_name => $.name,
+            port => $this.port))
 
 
   addInstance:
@@ -116,7 +117,7 @@ Workflow:
           Contract: $.string().notNull()
     Body:
       - $.environment.reporter.report($this, '[TC:Adding Instance]Creating VM')
-      - $.cast('io.murano.apps.test.SimpleVMcluster').addVM()
+      - $.cast('io.murano.apps.test.SimpleVMcluster').addVM(action_object => $app, action_name => $action_name)
       #Get last VM
       - $inst: $.instances[$.current_count]
       #Deploy Tomcat to last VM
@@ -128,7 +129,7 @@ Workflow:
       - $.environment.reporter.report($this, '[TomcatCluster]Tomcat is installed')
       #Deploy app to last VM
       - $app.deployApp($inst)
-      - $.registerHeatAlarm($inst.name, $app, action_name)
+      - $.registerHeatAlarm(instanceName => $inst.name, action_object => $app, action_name => $action_name)
       - $.environment.reporter.report($this, '[TomcatCluster]Adding new VM to LB')
-      - $.addToLB($inst.name, $.port)
+      - $.addToLB(instance_name => $inst.name, port => $.port)
 

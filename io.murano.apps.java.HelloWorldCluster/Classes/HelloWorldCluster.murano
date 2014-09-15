@@ -47,7 +47,8 @@ Workflow:
           - $.database.createDatabase($.dbName, $.dbUser, $.dbPassword)
           - $.tomcat.deployApp($this)
           - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Application is installed')
-          - $.tomcat.registerAlarmsForCluster($this, 'scaleUP')
+          - $.tomcat.cast('io.murano.apps.test.SimpleVMcluster').registerAlarmsForCluster(
+              action_object => $this, action_name => 'scaleUP')
           - $.tomcat.enableLb()
           - If: $.tomcat.clustered
             Then:
@@ -84,5 +85,5 @@ Workflow:
   scaleUP:
     Usage: Action
     Body:
-     - $.tomcat.addInstanceWithAlarm($this, 'scaleUP')
+     - $.tomcat.addInstanceWithAlarm(app => $this, action_name => 'scaleUP')
 

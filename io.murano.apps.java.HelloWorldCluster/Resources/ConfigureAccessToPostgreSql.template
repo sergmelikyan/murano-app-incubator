@@ -14,7 +14,7 @@ Body: |
 
 Scripts:
   configure:
-    Type: ChefScript
+    Type: Application
     Version: 1.0.0
     EntryPoint: configureAccessToPostgreSql.sh
     Files:
