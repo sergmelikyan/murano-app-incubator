@@ -8,8 +8,7 @@ Namespaces:
 
 Name: TomcatSingle
 
-Extends:
-  - io.murano.apps.apache.TomcatServletContainer
+Extends: TomcatServletContainer
 
 Properties:
   name:
@@ -23,6 +22,7 @@ Workflow:
   initialize:
     Body:
       - $.environment: $.find(std:Environment).require()
+      - $.clustered: false
 
   deploy:
     Body:
@@ -32,15 +32,15 @@ Workflow:
           - $securityGroupIngress:
               - ToPort: 80
                 FromPort: 80
-                IpProtocol: tcp
+                IpProtocol: 'tcp'
                 External: True
               - ToPort: 8080
                 FromPort: 8080
-                IpProtocol: tcp
+                IpProtocol: 'tcp'
                 External: True
               - ToPort: 443
                 FromPort: 443
-                IpProtocol: tcp
+                IpProtocol: 'tcp'
                 External: True
           - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
           - $.instance.deploy()
@@ -53,6 +53,8 @@ Workflow:
           - If: $.instance.assignFloatingIp
             Then:
               - $.public_ip: $.instance.floatingIpAddress
+            Else:
+              - $.public_ip: $.instance.ipAddresses[0]
           - $.clustered: false
           - $.setAttr(deployed, true)
 
