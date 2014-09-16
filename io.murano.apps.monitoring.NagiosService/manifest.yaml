@@ -1,0 +1,13 @@
+Format: 1.0
+Type: Library
+FullName: io.murano.apps.monitoring.NagiosService
+Name: Nagios Monitoring Service
+Description: |
+ Nagios is the most popular, open source, powerful monitoring system.
+ It enables organizations to identify and resolve IT infrastructure problems
+ before they affect critical business processes.
+ Nagios has capability of monitoring application, services, entire IT infrastructure.
+Author: 'Mirantis, Inc'
+Tags: [Monitoring,Nagios]
+Classes:
+ io.murano.apps.monitoring.Nagios: NagiosService.murano
