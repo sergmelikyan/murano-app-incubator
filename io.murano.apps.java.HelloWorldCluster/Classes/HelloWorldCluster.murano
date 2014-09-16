@@ -52,6 +52,9 @@ Workflow:
           - $.tomcat.enableLb()
           - If: $.tomcat.clustered
             Then:
+              - $.tomcat.cast('io.murano.apps.test.SimpleVMcluster').registerAlarmsForCluster(
+                          action_object => $this, action_name => 'scaleUP')
+              - $.tomcat.enableLb()
               - $ep: $.tomcat.public_ip + '/' + $.dir
             Else:
               - $ep: $.tomcat.public_ip + ':8080/' + $.dir
@@ -85,5 +88,7 @@ Workflow:
   scaleUP:
     Usage: Action
     Body:
-     - $.tomcat.addInstanceWithAlarm(app => $this, action_name => 'scaleUP')
+     - If: $.tomcat.clustered
+       Then:
+         - $.tomcat.addInstanceWithAlarm(app => $this, action_name => 'scaleUP')
 

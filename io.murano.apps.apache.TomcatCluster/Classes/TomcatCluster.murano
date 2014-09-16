@@ -25,12 +25,14 @@ Workflow:
   initialize:
     Body:
       - $.environment: $.find(std:Environment).require()
+      - $.clustered: true
 
   deploy:
     Body:
       - If: not $.getAttr(deployed, false)
         Then:
           - $.environment.reporter.report($this, '[TomcatCluster]Creating VMs for Tomcat ')
+          - $.clustered: true
           - $securityGroupIngress:
               - ToPort: 80
                 FromPort: 80
@@ -56,7 +58,6 @@ Workflow:
           - $.environment.reporter.report($this, '[TomcatCluster]Tomcat is installed')
           # Set the public_ip as a floating IP of underlying LB
           - $.public_ip: $.balancer_ip
-          - $.clustered: true
           - $.setAttr(deployed, true)
 
   deployApp:
@@ -132,4 +133,3 @@ Workflow:
       - $.registerHeatAlarm(instanceName => $inst.name, action_object => $app, action_name => $action_name)
       - $.environment.reporter.report($this, '[TomcatCluster]Adding new VM to LB')
       - $.addToLB(instance_name => $inst.name, port => $.port)
-
