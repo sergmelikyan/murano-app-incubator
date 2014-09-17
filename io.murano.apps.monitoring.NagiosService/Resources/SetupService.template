@@ -1,0 +1,24 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: Setup Service
+
+Parameters:
+  ip: $ip
+  alarm_url: $alarm_url
+  host_name: $host_name
+
+Body: |
+  return setup('{0} {1} {2}'.format(args.ip, args.host_name, args.alarm_url)).stdout
+
+Scripts:
+  setup:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: installService.sh
+    Files:
+      - <installer.sh>
+      - <common.sh>
+      - <murano-entry.cfg>
+    Options:
+      captureStdout: true
+      captureStderr: false

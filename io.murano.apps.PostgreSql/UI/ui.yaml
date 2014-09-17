@@ -4,7 +4,6 @@ Application:
   ?:
     type: io.murano.apps.PostgreSql
   name: $.appConfiguration.name
-  zone: $.appConfiguration.az
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
@@ -33,13 +32,6 @@ Forms:
           required: false
           widgetMedia:
             css: {all: ['muranodashboard/css/checkbox.css']}
-        - name: az
-          label: Availability Zone placement
-          type: io.murano.infra.AvailabilityZone
-          required: false
-          description: >-
-             Optionally specify the availability zone where this cluster
-             should be placed
         - name: unitNamingPattern
           type: string
           required: false

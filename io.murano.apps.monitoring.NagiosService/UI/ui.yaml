@@ -2,12 +2,12 @@ Version: 2
 
 Application:
   ?:
-    type: io.murano.apps.apache.Tomcat
+    type: io.murano.apps.monitoring.NagiosService
   name: $.appConfiguration.name
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
-    name: generateHostname($.instanceConfiguration.unitNamingPattern, 1)
+    name: generateHostname('',1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
     keyname: $.instanceConfiguration.keyPair
@@ -19,7 +19,7 @@ Forms:
         - name: name
           type: string
           label: Application Name
-          initial: Tomcat
+          initial: Nagios
           description: >-
             Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
             underline are allowed
@@ -60,15 +60,3 @@ Forms:
             Select a Key Pair to control access to instances. You can login to
             instances using this KeyPair after the deployment of application.
           required: false
-        - name: availabilityZone
-          type: azone
-          label: Availability zone
-          description: Select availability zone where the application would be installed.
-          required: false
-        - name: unitNamingPattern
-          label: Hostname
-          type: string
-          required: false
-          widgetMedia:
-            js: ['muranodashboard/js/support_placeholder.js']
-            css: {all: ['muranodashboard/css/support_placeholder.css']}

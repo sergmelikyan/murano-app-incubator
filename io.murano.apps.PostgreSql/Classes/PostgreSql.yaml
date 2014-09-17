@@ -16,8 +16,6 @@ Properties:
   instance:
     Contract: $.class(res:Instance).notNull()
 
-  zone:
-    Contract: $.class('io.murano.infra.AvailabilityZone')
 
 Workflow:
   initialize:
@@ -26,7 +24,7 @@ Workflow:
 
   deploy:
     Body:
-      - If: !yaql "not bool($.getAttr(deployed))"
+      - If: not $.getAttr(deployed, false)
         Then:
           - $.environment.reporter.report($this, 'Creating VM for PostgreSql')
           - $securityGroupIngress:
@@ -42,7 +40,7 @@ Workflow:
           - $template: $resources.yaml('DeployPostgreSql.template')
           - $.instance.agent.call($template, $resources)
           - $this.find(std:Environment).reporter.report($this, 'PostgreSql application is installed.')
-          - $.setAttr(deployed, True)
+          - $.setAttr(deployed, true)
 
   createDatabase:
     Arguments:
@@ -53,7 +51,7 @@ Workflow:
       - password:
           Contract: $.string().notNull()
     Body:
-      - If: !yaql "not bool($.getAttr(deployed))"
+      - If: not $.getAttr(deployed, false)
         Then:
           - $.deploy()
       - $this.find(std:Environment).reporter.report($this, 'Configuring ' + $database + ' database.')

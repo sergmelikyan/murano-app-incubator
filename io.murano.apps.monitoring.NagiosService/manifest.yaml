@@ -1,5 +1,5 @@
 Format: 1.0
-Type: Library
+Type: Application
 FullName: io.murano.apps.monitoring.NagiosService
 Name: Nagios Monitoring Service
 Description: |
@@ -10,4 +10,4 @@ Description: |
 Author: 'Mirantis, Inc'
 Tags: [Monitoring,Nagios]
 Classes:
- io.murano.apps.monitoring.Nagios: NagiosService.murano
+ io.murano.apps.monitoring.NagiosService: NagiosService.murano

@@ -11,6 +11,7 @@ Application:
   dbName: $.dbConfiguration.database
   dbUser: $.dbConfiguration.username
   dbPassword: $.dbConfiguration.password
+  monitoring: $.appConfiguration.monitoring
 
 Forms:
   - appConfiguration:
@@ -38,6 +39,11 @@ Forms:
           label: Servlet Container
           description: >-
             Select an instance of Java servlet contaniner to run the app
+        - name: monitoring
+          type: [io.murano.apps.monitoring.NagiosService,io.murano.apps.monitoring.CeilometerCPUAlarm]
+          label: Monitoring
+          description: >-
+            Select an instance of Monitoring Service
         - name: repository
           type: string
           initial: https://github.com/ativelkov/hello-world-servlet.git

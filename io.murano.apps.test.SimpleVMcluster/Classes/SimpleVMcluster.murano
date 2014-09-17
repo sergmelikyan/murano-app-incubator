@@ -38,17 +38,11 @@ Workflow:
       - $.environment: $.find(std:Environment).require()
 
   addVM:
-    Arguments:
-      action_object:
-        Contract: $.class(std:Application).notNull()
-      action_name:
-        Contract: $.string().notNull()
     Body:
       - $.current_count: $.current_count + 1
       - $inst: $.instances[$.current_count]
       - $inst.deploy()
-      - $this.registerHeatAlarm(instanceName => $inst.name,
-          action_object => $action_object, action_name => $action_name)
+
 
 
   deploy:
@@ -108,6 +102,8 @@ Workflow:
 
   registerAlarmsForCluster:
     Arguments:
+      monitoring:
+        Contract:  $.class('io.murano.apps.monitoring.MonitoringService').notNull()
       action_object:
         Contract: $.class(std:Application).notNull()
       action_name:
@@ -117,34 +113,9 @@ Workflow:
       - For: inst
         In: $.instances.take($.initial_count)
         Do:
-          - $this.registerHeatAlarm(instanceName => $inst.name,
+          - $monitoring.setupCheck(instance => $inst,
             action_object => $action_object, action_name => $action_name)
 
-  registerHeatAlarm:
-    Arguments:
-      instanceName:
-        Contract: $.string().notNull()
-      action_object:
-        Contract: $.class(std:Application).notNull()
-      action_name:
-        Contract: $.string().notNull()
-    Body:
-      - $.environment.reporter.report($this, '[VMCluster]Registering Ceilometer Alarm for instance{0}'.format($instanceName))
-      - $res: new(sys:Resources)
-      - $alarmAction: format('{0}/actions/{1}/actions/{2}_{3}',
-            config(murano,actions_url),
-            $.environment.id(),
-            $action_object.id(),
-            $action_name
-          )
-      - $alarmName: format('cpu_alarm_high_{0}', $instanceName)
-      - $template: $res.yaml('cpu-alarm-high.hot').bind(dict(
-            instance_name => $instanceName,
-            alarm_name    => $alarmName,
-            alarm_action  => $alarmAction
-          ))
-      - $.environment.stack.updateTemplate($template)
-      - $.environment.stack.push()
 
   scaleUP:
     Usage: Action

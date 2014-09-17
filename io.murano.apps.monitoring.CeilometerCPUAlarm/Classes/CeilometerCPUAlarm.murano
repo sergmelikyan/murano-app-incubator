@@ -1,0 +1,51 @@
+Namespaces:
+  =: io.murano.apps.monitoring
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: CeilometerCPUAlarm
+
+Extends: MonitoringService
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+
+  deployAgent:
+    Body:
+
+  setupCheck:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+      action_object:
+        Contract: $.class(std:Application).notNull()
+      action_name:
+        Contract: $.string().notNull()
+    Body:
+     - $instanceName: $instance.name
+     - $.environment.reporter.report($this, '[VMCluster]Registering Ceilometer Alarm for instance{0}'.format($instanceName))
+     - $res: new(sys:Resources)
+     - $alarmAction: format('{0}/actions/{1}/actions/{2}_{3}',
+           config(murano,actions_url),
+           $.environment.id(),
+           $action_object.id(),
+           $action_name
+         )
+     - $alarmName: format('cpu_alarm_high_{0}', $instanceName)
+     - $template: $res.yaml('cpu-alarm-high.hot').bind(dict(
+           instance_name => $instanceName,
+           alarm_name    => $alarmName,
+           alarm_action  => $alarmAction
+         ))
+     - $.environment.stack.updateTemplate($template)
+     - $.environment.stack.push()
+
+

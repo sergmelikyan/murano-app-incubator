@@ -1,0 +1,14 @@
+resources:
+  $alarm_name:
+    type: OS::Ceilometer::Alarm
+    properties:
+      description: Scale-up if the average CPU > 50% for 1 minute
+      meter_name: cpu_util
+      statistic: max
+      period: 60
+      evaluation_periods: 1
+      threshold: 50
+      alarm_actions:
+        - $alarm_action
+      matching_metadata: {"resource_id": {get_resource: $instance_name}}
+      comparison_operator: gt

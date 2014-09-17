@@ -9,16 +9,9 @@ Namespaces:
 Name: MonitoringService
 
 Extends: std:Application
-
 Properties:
-  public_ip:
-    Contract: $.string()
-    Usage: Out
-
-  clustered:
-    Contract: $.bool()
-    Usage: Out
-
+  name:
+    Contract: $.string().notNull()
 
 Workflow:
   initialize:
@@ -28,14 +21,10 @@ Workflow:
   deploy:
     Body:
 
-
   deployAgent:
     Body:
 
-
-  enableLb:
+  setupCheck:
     Body:
 
-  registerAlarm:
-    Body:
 
