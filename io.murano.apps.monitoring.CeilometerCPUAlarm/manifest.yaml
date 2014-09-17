@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.monitoring.CeilometerCPUAlarm
+Name: CeilometerCPUAlarm  Service
+Description: |
+ An abstract interface for Monitoring Service
+Author: 'Mirantis, Inc'
+Tags: [Monitoring]
+Classes:
+ io.murano.apps.monitoring.CeilometerCPUAlarm: CeilometerCPUAlarm.murano

@@ -20,12 +20,10 @@ if [[ "$DistroBasedOn" != "redhat" ]]; then
     exit 1
 fi
 
-bash installer.sh -p sys -i "httpd php php-cli gcc glibc glibc-common gd gd-devel net-snmp"
+bash installer.sh -p sys -i "tomcat tomcat-webapps tomcat-admin-webapps"
 
-bash installer.sh -p sys -i "nagios.x86_64 nagios-plugins-all.x86_64"
-service httpd start
+add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 8080 -j ACCEPT -m comment --comment "by murano, Tomcat"'
 
-
-add_fw_rule '-I INPUT 1 -p tcp -m tcp --dport 80 -j ACCEPT -m comment --comment "by murano, Nagios"'
-
+systemctl enable tomcat.service
+systemctl start tomcat.service
 

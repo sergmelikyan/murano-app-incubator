@@ -1,0 +1,23 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: Setup Nagios
+
+Parameters:
+  ui_password: $ui_password
+
+Body: |
+  return setup(args.ui_password).stdout
+
+Scripts:
+  setup:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: installAlarm.sh
+    Files:
+      - <installer.sh>
+      - <common.sh>
+      - <murano_alarm.sh>
+      - <commands_add.cfg>
+    Options:
+      captureStdout: true
+      captureStderr: false

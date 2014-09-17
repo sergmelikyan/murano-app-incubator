@@ -1,0 +1,74 @@
+Namespaces:
+  =: io.murano.apps.monitoring
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+
+Name: NagiosService
+
+Extends: MonitoringService
+
+Properties:
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+Methods:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+     - If: not $.getAttr(deployed, false)
+       Then:
+          - $.environment.reporter.report($this, '[Nagios] Creating VM for Nagios')
+          - $securityGroupIngress:
+              - ToPort: 80
+                FromPort: 80
+                IpProtocol: 'tcp'
+                External: True
+          - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+          - $.instance.deploy()
+          - $.environment.reporter.report($this, '[Nagios] Installing Nagios')
+          - $resources: new(sys:Resources)
+          - $template: $resources.yaml('DeployNagios.template')
+          - $.instance.agent.call($template, $resources)
+          - $.environment.reporter.report($this, '[Nagios] Setup Nagios Service')
+
+          - $template: $resources.yaml('SetupNagios.template').bind(dict(
+                ui_password => 'swordfsh'
+              ))
+          - $.instance.agent.call($template, $resources)
+          - If: $.instance.assignFloatingIp
+            Then:
+              - $ep: $.instance.floatingIpAddress
+            Else:
+              - $ep: $.instance.ipAdresses[0]
+          - $.environment.reporter.report($this, '[Nagios] Ready at http://' + $ep)
+          - $.setAttr(deployed, true)
+
+
+  setupCheck:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+      action_object:
+        Contract: $.class(std:Application).notNull()
+      action_name:
+        Contract: $.string().notNull()
+    Body:
+    - $.environment.reporter.report($this, '[Nagios] Add service to monitoring')
+    - $alarmAction: format('{0}/actions/{1}/actions/{2}_{3}',
+                config(murano,actions_url),
+                $.environment.id(),
+                $action_object.id(),
+                $action_name
+              )
+    - $resources: new(sys:Resources)
+    - $template: $resources.yaml('SetupService.template').bind(dict(
+        ip => $instance.ipAddresses[0],
+        alarm_url => $alarmAction
+        ))
+    - $.instance.agent.call($template, $resources)

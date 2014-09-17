@@ -27,6 +27,8 @@ Properties:
     Contract: $.string().notNull()
   dbPassword:
     Contract: $.string().notNull()
+  monitoring:
+    Contract: $.class('io.murano.apps.monitoring.MonitoringService').notNull()
 
 Workflow:
   initialize:
@@ -40,6 +42,7 @@ Workflow:
           - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Ensuring Tomcat is deployed.')
           - $.tomcat.deploy()
 
+
           - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Setting up the application on Tomcat.')
           #- $.tomcat.deployApp($template, $resources)
           # Configure access to PostgreSql
@@ -47,12 +50,10 @@ Workflow:
           - $.database.createDatabase($.dbName, $.dbUser, $.dbPassword)
           - $.tomcat.deployApp($this)
           - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Application is installed')
-          - $.tomcat.cast('io.murano.apps.test.SimpleVMcluster').registerAlarmsForCluster(
-              action_object => $this, action_name => 'scaleUP')
-          - $.tomcat.enableLb()
           - If: $.tomcat.clustered
             Then:
-              - $.tomcat.cast('io.murano.apps.test.SimpleVMcluster').registerAlarmsForCluster(
+              - $.monitoring.deploy()
+              - $.tomcat.cast('io.murano.apps.test.SimpleVMcluster').registerAlarmsForCluster(monitoring => $.monitoring,
                           action_object => $this, action_name => 'scaleUP')
               - $.tomcat.enableLb()
               - $ep: $.tomcat.public_ip + '/' + $.dir
@@ -90,5 +91,6 @@ Workflow:
     Body:
      - If: $.tomcat.clustered
        Then:
-         - $.tomcat.addInstanceWithAlarm(app => $this, action_name => 'scaleUP')
-
+         - $instance: $.tomcat.addInstance($this)
+         - $.monitoring.setupCheck(instance => $instance,
+                                    action_object => $this, action_name => 'scaleUP')
