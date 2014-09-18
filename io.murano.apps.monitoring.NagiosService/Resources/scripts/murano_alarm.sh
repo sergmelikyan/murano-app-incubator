@@ -30,7 +30,7 @@ CRITICAL)
 
                 case "$3" in
 
-                3)
+                1)
                         #Notify murano
                         curl -X POST --data '{}' -H "Content-type: text/plain" $MURANO_ALARM_ENDPOINT
                         ;;

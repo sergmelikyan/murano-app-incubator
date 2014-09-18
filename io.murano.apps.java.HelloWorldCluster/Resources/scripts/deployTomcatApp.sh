@@ -29,3 +29,5 @@ cd $2/WEB-INF/classes
 for f in $(find . -name "*.java"); do
     javac -cp /usr/share/tomcat/lib/tomcat-servlet-3.0-api.jar "$f"
 done
+sleep 10
+service tomcat restart

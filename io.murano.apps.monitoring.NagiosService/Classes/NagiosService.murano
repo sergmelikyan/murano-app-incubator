@@ -45,7 +45,7 @@ Methods:
             Then:
               - $ep: $.instance.floatingIpAddress
             Else:
-              - $ep: $.instance.ipAdresses[0]
+              - $ep: $.instance.ipAddresses[0]
           - $.environment.reporter.report($this, '[Nagios] Ready at http://' + $ep + '/nagios')
           - $.setAttr(deployed, true)
 
