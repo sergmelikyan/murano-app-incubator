@@ -79,3 +79,10 @@ Workflow:
   enableLb:
     Body:
       - $this.find(std:Environment).reporter.report($this, '[Tomcat] Go online.')
+
+  restartService:
+    Body:
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('RestartTomcat.template')
+      - $this.find(std:Environment).reporter.report($this, 'Restarting Tomcat Service')
+      - $.instance.agent.call($template, $resources)

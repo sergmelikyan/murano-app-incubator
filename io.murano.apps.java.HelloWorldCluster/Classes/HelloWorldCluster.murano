@@ -58,6 +58,9 @@ Workflow:
               - $.tomcat.enableLb()
               - $ep: $.tomcat.public_ip + '/' + $.dir
             Else:
+             - $.monitoring.deploy()
+             - $.monitoring.setupCheck(instance => $.tomcat.instance,
+                                                 action_object => $this, action_name => 'restartTomcat')
               - $ep: $.tomcat.public_ip + ':8080/' + $.dir
           - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Running at http://' + $ep)
           - $.setAttr(deployed, true)
@@ -94,3 +97,10 @@ Workflow:
          - $instance: $.tomcat.addInstance($this)
          - $.monitoring.setupCheck(instance => $instance,
                                     action_object => $this, action_name => 'scaleUP')
+
+  restartTomcat:
+    Usage: Action
+    Body:
+      - If: not $.tomcat.clustered
+        Then:
+          - $.tomcat.restartService()
