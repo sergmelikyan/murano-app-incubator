@@ -1,25 +1,27 @@
 FormatVersion: 2.0.0
 Version: 1.0.0
-Name: Setup Service
+Name: Setup HTTP Service
 
 Parameters:
   ip: $ip
   alarm_url: $alarm_url
   host_name: $host_name
+  port: $port
+  url: $url
 
 Body: |
-  return setup('{0} {1} {2}'.format(args.ip, args.host_name, args.alarm_url)).stdout
+  return setup('{0} {1} {2} {3} {4}'.format(args.ip, args.host_name, args.alarm_url, args.port, args.url)).stdout
 
 Scripts:
   setup:
     Type: Application
     Version: 1.0.0
-    EntryPoint: installService.sh
+    EntryPoint: installHTTPService.sh
     Files:
       - <installer.sh>
       - <common.sh>
       - <host-entry.cfg>
-      - <murano-entry.cfg>
+      - <service-http.cfg>
     Options:
       captureStdout: true
       captureStderr: false

@@ -59,9 +59,10 @@ Workflow:
               - $ep: $.tomcat.public_ip + '/' + $.dir
             Else:
              - $.monitoring.deploy()
-             - $.monitoring.setupCheck(instance => $.tomcat.instance,
-                                                 action_object => $this, action_name => 'restartTomcat')
-              - $ep: $.tomcat.public_ip + ':8080/' + $.dir
+             - $.monitoring.setupProbe(type => 'HTTP', instance => $.tomcat.instance,
+                                                 action_object => $this, action_name => 'restartTomcat',
+                                                 port => 8080, url => '\/')
+             - $ep: $.tomcat.public_ip + ':8080/' + $.dir
           - $this.find(std:Environment).reporter.report($this, '[HelloWorld]Running at http://' + $ep)
           - $.setAttr(deployed, true)
 

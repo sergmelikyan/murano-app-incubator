@@ -73,3 +73,40 @@ Methods:
         host_name => $instance.name
         ))
     - $.instance.agent.call($template, $resources)
+
+
+  setupProbe:
+    Arguments:
+      type:
+        Contract: $.string().notNull()
+      instance:
+        Contract: $.class(res:Instance).notNull()
+      action_object:
+        Contract: $.class(std:Application).notNull()
+      action_name:
+        Contract: $.string().notNull()
+      port:
+        Contract: $.int()
+        Default: 8080
+      url:
+        Contract: $.string()
+        Default: '\/'
+    Body:
+        - $.environment.reporter.report($this, '[Nagios] Add service to monitoring')
+        - $alarmAction: format('{0}/actions/{1}/actions/{2}_{3}',
+                    config(murano,actions_url),
+                    $.environment.id(),
+                    $action_object.id(),
+                    $action_name
+                  )
+        - $resources: new(sys:Resources)
+        - If: $type = 'HTTP'
+          Then:
+            - $template: $resources.yaml('SetupHTTPService.template').bind(dict(
+                ip => $instance.ipAddresses[0],
+                alarm_url => $alarmAction,
+                host_name => $instance.name,
+                port => $port,
+                url => $url
+                ))
+            - $.instance.agent.call($template, $resources)
