@@ -1,0 +1,75 @@
+Namespaces:
+  =: io.murano.traffic
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+  net: io.murano.networking
+
+Name: NeutronLoadBalancer
+
+Extends:
+  - LoadBalancer
+  - std:Application
+
+Properties:
+  poolId:
+     Contract: $.string()
+     Usage: Out
+
+  vipId:
+     Contract: $.string()
+     Usage: Out
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - $.environment.reporter.report($this, format('[NeutronLoadBalancer] Waiting for the network to be created for pool {0}', $.name))
+
+  createPool:
+    Body:
+      - If: not $.getAttr(poolCreated, false)
+        Then:
+          - $resources: new(sys:Resources)
+          - $.environment.reporter.report($this, format('[NeutronLoadBalancer] Creating pool {0}', $.name))
+          # Find where is our network and put LB in this net
+          - $net: $.environment.defaultNetworks.environment
+          - $subnetRef: $net.name + '-subnet-' + $net.id()
+          - $extNetId: $net.getExternalNetId()
+
+          - $template: $resources.yaml('lb-template.hot').bind(dict(
+                lb_method     => $.balancingMethod,
+                subnet        => $subnetRef,
+                port          => $.port,
+                public_net_id => $extNetId,
+                name          => $.name
+              ))
+          - $.environment.stack.updateTemplate($template)
+          - $.environment.stack.push()
+          - $outputs: $.environment.stack.output()
+          - $.virtualIp: $outputs.get(format('{0}-ip', $.name))
+          - $.poolId: $outputs.get(format('{0}-pool-id', $.name))
+          - $.vipId: $outputs.get(format('{0}-vip-id', $.name))
+          - $.setAttr(poolCreated, true)
+          - $.environment.reporter.report($this, format('[NeutronLoadBalancer] Pool {0} is created', $.name))
+
+  addMember:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+    Body:
+      - $resources: new(sys:Resources)
+      - $.environment.reporter.report($this, format('[NeutronLoadBalancer] Adding member {0} to the pool {1}', $instance.name, $.name))
+      - $template: $resources.yaml('lb-member.hot').bind(dict(
+           instance => $instance.name,
+           name     => $.name,
+           port     => $.port
+          ))
+      - $.environment.stack.updateTemplate($template)
+      - $.environment.stack.push()
+      - $.environment.reporter.report($this, format('[NeutronLoadBalancer] Member {0} added to the pool {1}', $instance.name, $.name))
+

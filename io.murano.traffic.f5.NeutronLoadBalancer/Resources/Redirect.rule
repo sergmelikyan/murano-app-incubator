@@ -1,0 +1,5 @@
+when HTTP_RESPONSE {
+     if { [HTTP::status] == "404" } {
+         HTTP::redirect "%REDIRECT_URI%"
+     }
+}

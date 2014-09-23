@@ -1,0 +1,36 @@
+Version: 2
+Application:
+  ?:
+    type: io.murano.traffic.f5.NeutronLoadBalancer
+  name: ('lbass-f5-lb-' + generateHostname('', 0))
+  balancingMethod: 'ROUND_ROBIN'
+  bigIpBalancingMethod: $.appConfiguration.method
+  port: $.appConfiguration.port
+  redirect: $.appConfiguration.redirect
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: This is Load Balancer implementation based on Neutron LBaaS API with F5 BIG-IP Local Traffic Management specific functionality.
+        - name: port
+          label: Port
+          type: integer
+          initial: 80
+        - name: method
+          label: Balancing Method
+          type: choice
+          choices:
+             - [LB_METHOD_ROUND_ROBIN, 'Round-Robin']
+             - [LB_METHOD_LEAST_CONNECTION_MEMBER, 'Least Connection Member']
+             - [LB_METHOD_LEAST_SESSIONS, 'Least Sessions Member']
+          initial: ROUND_ROBIN
+        - name: redirect
+          type: string
+          initial: 'http://example.com/'
+          description: >-
+            Address to which user is get redirected when non-existing URL is hit.
+

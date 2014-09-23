@@ -1,0 +1,60 @@
+resources:
+    ${name}-pool:
+         type: OS::Neutron::Pool
+         properties:
+           admin_state_up: True
+           lb_method: $lb_method
+           name: ${name}-pool
+           protocol: HTTP
+           subnet_id:
+             get_resource: $subnet
+           monitors:
+             - get_resource: ${name}-health-monitor
+           vip:
+             name: ${name}-vip
+             protocol_port: $port
+
+    ${name}-load-balancer:
+          type: OS::Neutron::LoadBalancer
+          properties:
+            pool_id:
+              get_resource: ${name}-pool
+            protocol_port: $port
+
+    ${name}-floating-ip:
+        type: OS::Neutron::FloatingIP
+        properties:
+          floating_network_id: $public_net_id
+          port_id:
+            Fn::Select:
+               - port_id
+               - get_attr:
+                   - ${name}-pool
+                   - vip
+
+    ${name}-health-monitor:
+         type: OS::Neutron::HealthMonitor
+         properties:
+            delay: 5
+            type: PING
+            max_retries: 3
+            timeout: 3
+
+
+outputs:
+   ${name}-ip:
+     value:
+       get_attr:
+         - ${name}-floating-ip
+         - floating_ip_address
+
+   ${name}-pool-id:
+     value:
+       get_resource: ${name}-pool
+
+   ${name}-vip-id:
+     value:
+       get_attr:
+         - ${name}-pool
+         - vip
+         - id

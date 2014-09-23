@@ -1,0 +1,65 @@
+Namespaces:
+  =: io.murano.traffic.f5
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  traffic: io.murano.traffic
+  bigip: io.murano.contrib.bigIp
+
+Name: NeutronLoadBalancer
+
+Extends:
+  - traffic:NeutronLoadBalancer
+  - std:Application
+
+Properties:
+  bigip:
+    Contract: $.class(bigip:Api)
+    Usage: Runtime
+
+  bigIpBalancingMethod:
+    Contract: $.string().notNull()
+
+  redirect:
+    Contract: $.string().notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - $.bigip: new(bigip:Api)
+
+  deploy:
+    Body:
+      - $.cast(traffic:NeutronLoadBalancer).deploy()
+
+  createPool:
+    Body:
+      - If: not $.getAttr(f5LbaasPoolCreated, false)
+        Then:
+          - $resources: new(sys:Resources)
+          - $.cast(traffic:NeutronLoadBalancer).createPool()
+          - $poolName: format('uuid_{0}', $.poolId)
+
+          - $.environment.reporter.report($this, format('[F5AdvancedLoadBalancer] Configuring balancing method for pool {0} on F5 BIG-IP LTM', $.name))
+          # setting balancing method
+          - $.bigip.setBalancingMethod($poolName, $.bigIpBalancingMethod)
+
+          - $.environment.reporter.report($this, format('[F5AdvancedLoadBalancer] Adding iRule for pool {0} on F5 BIG-IP LTM', $.name))
+          - $rule: $resources.string('Redirect.rule').replace('%REDIRECT_URI%', $.redirect)
+          - $ruleName: format('{0}-redirect-rule', $.name)
+          - $vipName: format('uuid_{0}', $.vipId)
+
+          # adding redirect iRule
+          - $.bigip.addRule($ruleName, $rule)
+          - $.bigip.assignRule($ruleName, $vipName)
+
+          - $.setAttr(f5LbaasPoolCreated, true)
+
+  addMember:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+    Body:
+      - $.cast(traffic:NeutronLoadBalancer).addMember($instance)
+      - $.bigip.setBalancingMethod(format('uuid_{0}', $.poolId), $.bigIpBalancingMethod)

@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.traffic.f5.NeutronLoadBalancer
+Name: F5 Advanced Neutron LBaaS
+Description: |
+ This is Load Balancer implementation based on Neutron LBaaS API with F5 BIG-IP Local Traffic Management specific functionality.
+Author: 'Mirantis, Inc'
+Tags: [balancer, traffic]
+Classes:
+ io.murano.traffic.f5.NeutronLoadBalancer: F5NeutronLoadBalancer.yaml

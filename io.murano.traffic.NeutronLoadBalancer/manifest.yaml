@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.traffic.NeutronLoadBalancer
+Name: Neutron LBaaS
+Description: |
+ This is Load Balancer implementation based on Neutron LBaaS API.
+Author: 'Mirantis, Inc'
+Tags: [balancer, traffic]
+Classes:
+ io.murano.traffic.NeutronLoadBalancer: NeutronLoadBalancer.yaml
