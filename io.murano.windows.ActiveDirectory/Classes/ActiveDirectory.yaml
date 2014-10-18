@@ -1,0 +1,54 @@
+Namespaces:
+  =: io.murano.windows.activeDirectory
+  std: io.murano
+  sys: io.murano.system
+
+Name: ActiveDirectory
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  primaryController:
+    Contract: $.class(PrimaryController).notNull()
+
+  secondaryControllers:
+    Contract: [$.class(SecondaryController).notNull()]
+
+  adminAccountName:
+    Contract: $.string().notNull()
+    Default: Administrator
+
+  adminPassword:
+    Contract: $.string().notNull()
+    Default: P@ssw0rd
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - $.resources: new(sys:Resources)
+      - $.setAttr(domainDeployed, false)
+
+  deploy:
+    Body:
+      - If: $.getAttr(domainDeployed, false)
+        Then:
+          - Return:
+
+      - $securityGroupIngress: $.resources.json('DomainSecurity.json')
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+
+      - $.primaryController.deploy()
+      - $.secondaryControllers.pselect($.deploy())
+
+      - $.setAttr(domainDeployed, true)
+      - $.reportDeployed(title => 'MS Active Directory',
+                         unitCount => len(secondaryControllers) + 1)
+
+  destroy:
+    Body:
+      - $.reportDestroyed()
+      - $.setAttr(domainDeployed, false)

@@ -1,0 +1,44 @@
+Namespaces:
+  =: io.murano.monitoring
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  zabbix: io.murano.contrib.zabbix
+
+Name: Zabbix
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  probe:
+    Contract: $.string().notNull()
+
+  zabbix:
+    Contract: $.class(zabbix:Api)
+    Usage: Runtime
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - $.zabbix: new(zabbix:Api)
+
+  deploy:
+    Body:
+      - $.environment.reporter.report($this, 'Zabbix is ready to be configured')
+
+  configureProbe:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+    Body:
+      - If: $instance.assignFloatingIp
+        Then:
+          - $host: $instance.floatingIpAddress
+        Else:
+          - $host: $instance.ipAddresses[0]
+      - $.zabbix.addProbe($.probe, $host, $instance.name)
+      - $.environment.reporter.report($this, format('Added {1} probe for instance {0} on Zabbix', $instance.name, $.probe))

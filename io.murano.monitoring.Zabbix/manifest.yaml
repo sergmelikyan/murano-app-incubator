@@ -1,0 +1,11 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.monitoring.Zabbix
+Name: Zabbix
+Description: |
+ Zabbix is an enterprise-class open source distributed monitoring solution.
+Author: 'Mirantis, Inc'
+Tags: [Linux, App]
+Classes:
+ io.murano.monitoring.Zabbix: Zabbix.yaml
+

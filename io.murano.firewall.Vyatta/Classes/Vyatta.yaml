@@ -1,0 +1,32 @@
+Namespaces:
+  =: io.murano.firewall
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+
+Name: Vyatta
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  port:
+    Contract: $.int().notNull()
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  deploy:
+    Body:
+      - $.environment.reporter.report($this, 'Vyatta is ready to be configured')
+
+  openPort:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+    Body:
+      - $.environment.reporter.report($this, format('Opened port {1} for instance {0} on Vyatta', $instance.name, $.port))

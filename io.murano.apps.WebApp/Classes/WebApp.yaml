@@ -1,0 +1,68 @@
+Namespaces:
+  =: io.murano.apps
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  monitoring: io.murano.monitoring
+  firewall: io.murano.firewall
+
+Name: WebApp
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instance:
+    Contract: $.class(res:Instance).notNull()
+
+  monitoring:
+    Contract: $.class(monitoring:Zabbix)
+
+  firewall:
+    Contract: $.class(firewall:Vyatta)
+
+Workflow:
+  initialize:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+
+  getUrl:
+    Body:
+      - If: $.instance.assignFloatingIp
+        Then:
+          - Return: $.instance.floatingIpAddress
+        Else:
+          - Return: $.instance.ipAddresses[0]
+
+  deploy:
+    Body:
+      - $.environment.reporter.report($this, 'Starting WebApp installation')
+
+      - $securityGroupIngress:
+          - ToPort: 80
+            FromPort: 80
+            IpProtocol: tcp
+            External: True
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+
+      - $.environment.reporter.report($this, format('Deploying instance {0}', $.instance.name))
+      - $.instance.deploy()
+      - $.environment.reporter.report($this, format('Deployed instance {0}', $.instance.name))
+      - $.environment.reporter.report($this, format('Installing application on {0}', $.instance.name))
+      - $resources: new(sys:Resources)
+      - $template: $resources.yaml('DeployApp.template').bind(dict(
+            instanceName => $.instance.name
+          ))
+      - $.instance.agent.call($template, $resources)
+
+      - If: $.monitoring != null
+        Then:
+          - $.monitoring.configureProbe($.instance)
+
+      - If: $.firewall != null
+        Then:
+          - $.firewall.openPort($.instance)
+
+      - $.environment.reporter.report($this, format('App is located at http://{0}', $.getUrl()))

@@ -1,0 +1,12 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.WebApp
+Name: Web App
+Description: |
+ This is a web application that displays simple HTML page with ID of machine
+ on which it is running. Additionaly monitoring and port on firewall may be
+ configured.
+Author: 'Mirantis, Inc'
+Tags: [Linux, App]
+Classes:
+ io.murano.apps.WebApp: WebApp.yaml

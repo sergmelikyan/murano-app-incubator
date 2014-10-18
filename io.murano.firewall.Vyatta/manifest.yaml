@@ -1,0 +1,11 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.firewall.Vyatta
+Name: Vyatta
+Description: |
+ Vyatta provides software-based virtual router, virtual firewall and VPN products for Internet Protocol networks (IPv4 and IPv6).
+Author: 'Mirantis, Inc'
+Tags: [Linux, App]
+Classes:
+ io.murano.firewall.Vyatta: Vyatta.yaml
+

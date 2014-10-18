@@ -1,0 +1,24 @@
+Version: 2
+
+Application:
+  ?:
+    type: io.murano.monitoring.Zabbix
+  probe: $.appConfiguration.probeMethod
+  name: ('zabbix-' + generateHostname('', 0))
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: title
+          type: string
+          required: false
+          hidden: true
+          description: Zabbix is an enterprise-class open source distributed monitoring solution.
+
+        - name: probeMethod
+          label: Probe Method
+          type: choice
+          choices:
+             - [HTTP, 'HTTP']
+             - [ICMP, 'ICMP']
+          initial: ICMP
