@@ -3,6 +3,8 @@ Namespaces:
   std: io.murano
   res: io.murano.resources
   sys: io.murano.system
+  vyatta: io.murano.contrib.vyatta
+
 
 Name: Vyatta
 
@@ -15,10 +17,15 @@ Properties:
   port:
     Contract: $.int().notNull()
 
+  vyatta:
+    Contract: $.class(vyatta:Api)
+    Usage: Runtime
+
 Workflow:
   initialize:
     Body:
       - $.environment: $.find(std:Environment).require()
+      - $.vyatta: new(vyatta:Api)
 
   deploy:
     Body:
@@ -29,4 +36,10 @@ Workflow:
       instance:
         Contract: $.class(res:Instance).notNull()
     Body:
+      - If: $instance.assignFloatingIp
+        Then:
+          - $host: $instance.floatingIpAddress
+        Else:
+          - $host: $instance.ipAddresses[0]
+      - $.vyatta.openPort($instance.name, $host, $.port)
       - $.environment.reporter.report($this, format('Opened port {1} for instance {0} on Vyatta', $instance.name, $.port))
