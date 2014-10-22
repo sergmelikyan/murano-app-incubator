@@ -48,8 +48,14 @@ Workflow:
       - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
 
       - $.environment.reporter.report($this, format('Deploying instance {0}', $.instance.name))
+      # -------------------------------
+      # ------ Deploy Instance --------
       - $.instance.deploy()
+      # -------------------------------
+      
       - $.environment.reporter.report($this, format('Deployed instance {0}', $.instance.name))
+      # -----------------------------------------------------
+      # -------Add to Vyatta & Zabbix------------------------
       - If: $.monitoring != null
         Then:
           - $.monitoring.configureProbe($.instance)
@@ -57,6 +63,10 @@ Workflow:
       - If: $.firewall != null
         Then:
           - $.firewall.openPort($.instance)
+      # -----------------------------------------------------
+      
+      # -----------------------------------------------------
+      # -------Install Application---------------------------
       - $.environment.reporter.report($this, format('Installing application on {0}', $.instance.name))
       - $resources: new(sys:Resources)
       - $template: $resources.yaml('DeployApp.template').bind(dict(
