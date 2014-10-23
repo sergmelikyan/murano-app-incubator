@@ -16,7 +16,7 @@ Forms:
 
         - name: hostname
           type: string
-          label: Hostname
+          label: Name
           initial: 'vyatta'
           description: >-
             For your convenience instance hostname can be specified.
