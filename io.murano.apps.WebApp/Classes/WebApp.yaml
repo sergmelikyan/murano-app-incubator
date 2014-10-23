@@ -67,7 +67,7 @@ Workflow:
 
       - If: $.firewall != null
         Then:
-          - $.firewall.openPort($.instance, 80)
+          - $.firewall.openPort(instance => $.instance, port => 80)
       # =====================================================
 
       - $.environment.reporter.report($this, format('Installing application on {0}', $.instance.name))
