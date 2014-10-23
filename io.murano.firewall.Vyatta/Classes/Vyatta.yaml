@@ -14,9 +14,6 @@ Properties:
   name:
     Contract: $.string().notNull()
 
-  port:
-    Contract: $.int().notNull()
-
   vyatta:
     Contract: $.class(vyatta:Api)
     Usage: Runtime
@@ -35,11 +32,13 @@ Workflow:
     Arguments:
       instance:
         Contract: $.class(res:Instance).notNull()
+      port:
+        Contract: $.int().notNull()
     Body:
       - If: $instance.assignFloatingIp
         Then:
           - $host: $instance.floatingIpAddress
         Else:
           - $host: $instance.ipAddresses[0]
-      - $.vyatta.openPort($instance.name, $host, $.port)
-      - $.environment.reporter.report($this, format('Opened port {1} for instance {0} on Vyatta', $instance.name, $.port))
+      - $.vyatta.openPort($instance.name, $host, $port)
+      - $.environment.reporter.report($this, format('Opened port {1} for instance {0} on Vyatta', $instance.name, $port))

@@ -4,7 +4,7 @@ Application:
   ?:
     type: io.murano.monitoring.Zabbix
   probe: $.appConfiguration.probeMethod
-  name: ('zabbix-' + generateHostname('', 0))
+  name: ('murano-' + generateHostname($.appConfiguration.hostname, 1))
 
 Forms:
   - appConfiguration:
@@ -14,6 +14,17 @@ Forms:
           required: false
           hidden: true
           description: Zabbix is an enterprise-class open source distributed monitoring solution.
+
+        - name: hostname
+          type: string
+          label: Hostname
+          initial: 'zabbix'
+          description: >-
+            For your convenience instance hostname can be specified.
+            Enter a name or leave blank for random name generation.
+          required: false
+          regexpValidator: '^(([a-zA-Z0-9#][a-zA-Z0-9-#]*[a-zA-Z0-9#])\.)*([A-Za-z0-9#]|[A-Za-z0-9#][A-Za-z0-9-#]*[A-Za-z0-9#])$'
+          helpText: Optional field for a machine hostname
 
         - name: probeMethod
           label: Probe Method

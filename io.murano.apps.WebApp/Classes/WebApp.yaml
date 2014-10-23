@@ -40,21 +40,26 @@ Workflow:
     Body:
       - $.environment.reporter.report($this, 'Starting WebApp installation')
 
+      # =====================================================
+      # ------ Deploy Instance ------------------------------
       - $securityGroupIngress:
           - ToPort: 80
             FromPort: 80
             IpProtocol: tcp
             External: True
       - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+      # =====================================================
 
       - $.environment.reporter.report($this, format('Deploying instance {0}', $.instance.name))
-      # -------------------------------
-      # ------ Deploy Instance --------
+
+      # =====================================================
+      # ------ Deploy Instance ------------------------------
       - $.instance.deploy()
-      # -------------------------------
-      
+      # =====================================================
+
       - $.environment.reporter.report($this, format('Deployed instance {0}', $.instance.name))
-      # -----------------------------------------------------
+
+      # =====================================================
       # -------Add to Vyatta & Zabbix------------------------
       - If: $.monitoring != null
         Then:
@@ -62,15 +67,18 @@ Workflow:
 
       - If: $.firewall != null
         Then:
-          - $.firewall.openPort($.instance)
-      # -----------------------------------------------------
-      
-      # -----------------------------------------------------
-      # -------Install Application---------------------------
+          - $.firewall.openPort($.instance, 80)
+      # =====================================================
+
       - $.environment.reporter.report($this, format('Installing application on {0}', $.instance.name))
+
+      # =====================================================
+      # -------Install Application---------------------------
       - $resources: new(sys:Resources)
       - $template: $resources.yaml('DeployApp.template').bind(dict(
             instanceName => $.instance.name
           ))
       - $.instance.agent.call($template, $resources)
+      # =====================================================
+
       - $.environment.reporter.report($this, format('App is located at http://{0}', $.getUrl()))

@@ -3,8 +3,7 @@ Version: 2
 Application:
   ?:
     type: io.murano.firewall.Vyatta
-  port: $.appConfiguration.port
-  name: ('vyatta-' + generateHostname('', 0))
+  name: ('murano-' + generateHostname($.appConfiguration.hostname, 1))
 
 Forms:
   - appConfiguration:
@@ -15,7 +14,13 @@ Forms:
           hidden: true
           description: Vyatta provides software-based virtual router, virtual firewall and VPN products for Internet Protocol networks (IPv4 and IPv6).
 
-        - name: port
-          label: Port
-          type: integer
-          initial: 80
+        - name: hostname
+          type: string
+          label: Hostname
+          initial: 'vyatta'
+          description: >-
+            For your convenience instance hostname can be specified.
+            Enter a name or leave blank for random name generation.
+          required: false
+          regexpValidator: '^(([a-zA-Z0-9#][a-zA-Z0-9-#]*[a-zA-Z0-9#])\.)*([A-Za-z0-9#]|[A-Za-z0-9#][A-Za-z0-9-#]*[A-Za-z0-9#])$'
+          helpText: Optional field for a machine hostname

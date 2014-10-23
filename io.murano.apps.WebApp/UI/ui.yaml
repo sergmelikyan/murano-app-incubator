@@ -4,7 +4,7 @@ Templates:
   instance:
     ?:
       type: io.murano.resources.LinuxMuranoInstance
-    name: generateHostname('', 0)
+    name: generateHostname($.appConfiguration.hostname, 1)
     flavor: $.instanceConfiguration.flavor
     image: $.instanceConfiguration.osImage
     keyname: $.instanceConfiguration.keyPair
@@ -48,6 +48,16 @@ Forms:
           required: false
           widgetMedia:
             css: {all: ['muranodashboard/css/checkbox.css']}
+        - name: hostname
+          type: string
+          label: Hostname
+          initial: 'demo-app'
+          description: >-
+            For your convenience instance hostname can be specified.
+            Enter a name or leave blank for random name generation.
+          required: false
+          regexpValidator: '^(([a-zA-Z0-9#][a-zA-Z0-9-#]*[a-zA-Z0-9#])\.)*([A-Za-z0-9#]|[A-Za-z0-9#][A-Za-z0-9-#]*[A-Za-z0-9#])$'
+          helpText: Optional field for a machine hostname
         - name: zabbix
           type: [io.murano.monitoring.Zabbix]
           label: Monitoring
