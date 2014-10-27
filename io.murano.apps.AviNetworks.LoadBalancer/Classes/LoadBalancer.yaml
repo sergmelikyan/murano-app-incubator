@@ -1,0 +1,87 @@
+Namespaces:
+  =: io.murano.apps.AviNetworks
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  apps: io.murano.apps
+
+Name: LoadBalancer
+
+Extends:
+  - std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  balancingMethod:
+    Contract: $.string().notNull()
+
+  port:
+    Contract: $.int().notNull()
+
+  virtualIp:
+     Contract: $.string()
+     Usage: Out
+
+  poolId:
+     Contract: $.string()
+     Usage: Out
+
+  vipId:
+     Contract: $.string()
+     Usage: Out
+
+Workflow:
+  deploy:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - $.environment.reporter.report($this, format('Waiting for the network to be created for pool {0}', $.name))
+
+  createPool:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - $resources: new(sys:Resources)
+      - $.environment.reporter.report($this, format('Creating pool {0}', $.name))
+      # Find where is our network and put LB in this net
+      - $net: $.environment.defaultNetworks.environment
+      - $netExplorer: new(sys:NetworkExplorer)
+      - $subnetRef: $net.name + '-subnet-' + $net.id()
+      - $extNetId: $netExplorer.getExternalNetworkIdForRouter($net.externalRouterId)
+
+      - $template: $resources.yaml('lb-template.hot').bind(dict(
+            lb_method     => $.balancingMethod,
+            subnet        => $subnetRef,
+            port          => $.port,
+            public_net_id => $extNetId,
+            name          => $.name
+          ))
+      - $.environment.stack.updateTemplate($template)
+      - $.environment.stack.push()
+      - $outputs: $.environment.stack.output()
+      - $.virtualIp: $outputs.get(format('{0}-ip', $.name))
+      - $.poolId: $outputs.get(format('{0}-pool-id', $.name))
+      - $.vipId: $outputs.get(format('{0}-vip-id', $.name))
+      - $.environment.reporter.report($this, format('Pool {0} is created', $.name))
+
+  addMember:
+    Arguments:
+      instance:
+        Contract: $.class(res:Instance).notNull()
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - If: not $.getAttr(poolCreated, false)
+        Then:
+          - $.createPool()
+          - $.setAttr(poolCreated, true)
+
+      - $resources: new(sys:Resources)
+      - $.environment.reporter.report($this, format('Adding member {0} to the pool {1}', $instance.name, $.name))
+      - $template: $resources.yaml('lb-member.hot').bind(dict(
+           instance => $instance.name,
+           name     => $.name,
+           port     => $.port
+          ))
+      - $.environment.stack.updateTemplate($template)
+      - $.environment.stack.push()
+      - $.environment.reporter.report($this, format('Member {0} added to the pool {1}', $instance.name, $.name))

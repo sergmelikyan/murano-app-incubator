@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.ClusteredWebApp
+Name: Clustered Web App
+Description: |
+ This is a clustered web application with load balancer as front-end for worker nodes.
+Author: 'Mirantis, Inc'
+Tags: [Linux, App]
+Classes:
+ io.murano.apps.ClusteredWebApp: ClusteredWebApp.yaml

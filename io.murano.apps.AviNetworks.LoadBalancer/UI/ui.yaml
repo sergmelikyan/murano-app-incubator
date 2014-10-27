@@ -1,0 +1,30 @@
+Version: 2
+
+Application:
+  ?:
+    type: io.murano.apps.AviNetworks.LoadBalancer
+  name: generateHostname($.appConfiguration.name, 1)
+  port: $.appConfiguration.port
+  balancingMethod: $.appConfiguration.method
+
+
+Forms:
+  - appConfiguration:
+      fields:
+        - name: name
+          type: string
+          label: Application Name
+          initial: Avi_LoadBalancer
+          description: >-
+            Enter a desired name for the application. Just A-Z, a-z, 0-9, dash and
+            underline are allowed
+        - name: method
+          label: Balancing Method
+          type: choice
+          choices:
+             - [ROUND_ROBIN, 'Round-Robin']
+          initial: ROUND_ROBIN
+        - name: port
+          label: Port
+          type: integer
+          initial: 80

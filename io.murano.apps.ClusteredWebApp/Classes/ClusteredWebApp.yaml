@@ -1,0 +1,46 @@
+Namespaces:
+  =: io.murano.apps
+  std: io.murano
+  res: io.murano.resources
+  sys: io.murano.system
+  avi: io.murano.apps.AviNetworks
+
+Name: ClusteredWebApp
+
+Extends: std:Application
+
+Properties:
+  name:
+    Contract: $.string().notNull()
+
+  instances:
+    Contract:
+       - $.class(res:Instance).notNull()
+
+  loadBalancer:
+    Contract: $.class(avi:LoadBalancer)
+
+Workflow:
+  deploy:
+    Body:
+      - $.environment: $.find(std:Environment).require()
+      - $.environment.reporter.report($this, 'Starting SimpleWebApp installation')
+      - $securityGroupIngress:
+          - ToPort: 80
+            FromPort: 80
+            IpProtocol: tcp
+            External: True
+      - $.environment.securityGroupManager.addGroupIngress($securityGroupIngress)
+      - For: instance
+        In: $.instances
+        Do:
+          - $.environment.reporter.report($this, format('Deploying VM for instance {0}', $instance.name))
+          - $instance.deploy()
+          - $.loadBalancer.addMember($instance)
+          - $.environment.reporter.report($this, format('Installing application on instance {0}', $instance.name))
+          - $resources: new(sys:Resources)
+          - $template: $resources.yaml('DeployApp.template').bind(dict(
+                instanceName => $instance.name
+              ))
+          - $instance.agent.call($template, $resources)
+      - $.environment.reporter.report($this, format('App is located at http://{0}', $.loadBalancer.virtualIp))

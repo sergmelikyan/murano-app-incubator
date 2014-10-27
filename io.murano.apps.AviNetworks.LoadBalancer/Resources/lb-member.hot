@@ -1,0 +1,11 @@
+Resources:
+    ${instance}-member:
+        Type: OS::Neutron::PoolMember
+        Properties:
+          pool_id:
+            Ref: ${name}-pool
+          address:
+            "Fn::GetAtt":
+              - $instance
+              - PrivateIp
+          protocol_port: $port

@@ -1,0 +1,19 @@
+FormatVersion: 2.0.0
+Version: 1.0.0
+Name: Deploy Telnet
+
+Parameters:
+  instanceName: $instanceName
+
+Body: |
+  return deploy(args.instanceName).stdout
+
+Scripts:
+  deploy:
+    Type: Application
+    Version: 1.0.0
+    EntryPoint: deployWebApp.sh
+    Files: []
+    Options:
+      captureStdout: true
+      captureStderr: true

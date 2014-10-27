@@ -1,0 +1,10 @@
+Format: 1.0
+Type: Application
+FullName: io.murano.apps.AviNetworks.LoadBalancer
+Name: Avi Networks LoadBalancer
+Description: |
+ Avi Network LoadBalancer implementation provides advancerd LoadBalancing capabilities for you application.
+Author: 'Avi Networks, Inc'
+Tags: [LoadBlancer, Server]
+Classes:
+ io.murano.apps.AviNetworks.LoadBalancer: LoadBalancer.yaml
